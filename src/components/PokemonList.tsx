@@ -1,17 +1,29 @@
 import { useMemo, useState } from "react";
-import { BehaviorSubject, debounceTime, filter, from, mergeMap } from "rxjs";
+import {
+  BehaviorSubject,
+  debounceTime,
+  filter,
+  from,
+  mergeMap,
+  switchMap,
+} from "rxjs";
 import { IPokemon } from "../types/pokemonApi.types";
 import { useObservable } from "../hooks/useObservable";
 import { pokemonsServices } from "../services/pokemonApi.service";
 
 export const PokemonList = () => {
   const searchSubject = useMemo(() => new BehaviorSubject(""), []);
-  const searchResultObservable = searchSubject.pipe(
-    filter((search) => search.length > 1),
-    debounceTime(500),
-    mergeMap((search) =>
-      from(pokemonsServices.getPokemons({ filteredName: search }))
-    )
+  // Memoize the observable chain
+  const searchResultObservable = useMemo(
+    () =>
+      searchSubject.pipe(
+        filter((search) => search.length > 1),
+        debounceTime(500),
+        mergeMap((search) =>
+          from(pokemonsServices.getPokemons({ filteredName: search }))
+        )
+      ),
+    [searchSubject] // Only depends on searchSubject
   );
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<IPokemon[]>([]);

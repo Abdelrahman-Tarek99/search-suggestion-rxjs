@@ -1,7 +1,8 @@
 import { useEffect } from "react";
+import { Observable } from "rxjs";
 
 export const useObservable = <T>(
-  observable: any,
+  observable: Observable<T>,
   setter: (value: T) => void
 ) => {
   useEffect(() => {
